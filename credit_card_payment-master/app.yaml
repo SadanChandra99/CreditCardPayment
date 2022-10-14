@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-deployment
+  labels:
+    app: creditcard
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: creditcard
+    
+  template:
+    metadata:
+      labels:
+        app: creditcard
+    spec:
+      containers:
+        - name: creditcard-container
+          image: sadanchandra99/test:8.0
+          
+          env:
+            - name: MYSQL_ROOT_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-configmap
+                  key: host
+            
+            
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-configmap
+                  key: username
+            
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-configmap
+                  key: password
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: mysql-configmap
+                  key: name
+          ports:
+          - containerPort: 8318
+
+
+---
+
+
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: creditcard-service
+spec:
+  selector: 
+    app: creditcard
+  ports:
+    - protocol: "TCP"
+      port: 8318
+      targetPort: 8318
+  type: NodePort
